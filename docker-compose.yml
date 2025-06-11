@@ -1,0 +1,168 @@
+version: '3.8'
+
+services:
+  # Zookeeper - required for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zk-data:/var/lib/zookeeper/data
+      - zk-logs:/var/lib/zookeeper/log
+    networks:
+      - security-lab
+
+  # Kafka broker
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      # Auto-create topics
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - security-lab
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # PostgreSQL database for aggregations
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: security_analytics
+      POSTGRES_USER: spark_user
+      POSTGRES_PASSWORD: spark_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - security-lab
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spark_user -d security_analytics"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  # Security log generator
+  log-generator:
+    build: .
+    container_name: log-generator
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER: kafka:29092
+      KAFKA_TOPIC: security-events
+      PORT: 3000
+      KAFKAJS_NO_PARTITIONER_WARNING: 1
+      CONSOLE_LOGGING: "true"
+    ports:
+      - "3000:3000"
+    networks:
+      - security-lab
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Kafka UI for monitoring (optional)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - security-lab
+
+  # pgAdmin for database management (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - security-lab
+
+  # Spark Analytics Container for Students
+  spark-analytics:
+    build: 
+      context: .
+      dockerfile: Dockerfile.spark
+    container_name: spark-analytics
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      SPARK_MASTER: local[*]
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/security_analytics
+      POSTGRES_USER: spark_user
+      POSTGRES_PASSWORD: spark_password
+    ports:
+      - "4040:4040"  # Spark UI
+      - "8888:8888"  # Jupyter Lab
+    volumes:
+      - ./examples:/workspace/examples
+      - ./student-work:/workspace/student-work
+      - spark-checkpoints:/tmp/spark-checkpoints
+    networks:
+      - security-lab
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+
+networks:
+  security-lab:
+    driver: bridge
+
+volumes:
+  zk-data:
+  zk-logs:
+  kafka-data:
+  postgres-data:
+  spark-checkpoints:

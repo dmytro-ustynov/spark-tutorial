@@ -192,3 +192,47 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+# Project specific ignores
+node_modules/
+npm-debug.log*
+
+# Docker volumes and data
+postgres-data/
+kafka-data/
+zk-data/
+zk-logs/
+
+# Spark checkpoints and logs
+/tmp/checkpoints/
+/tmp/spark-checkpoints/
+spark-warehouse/
+derby.log
+metastore_db/
+
+# Student submissions
+student-solutions/
+submissions/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Local environment files
+.env.local
+.env.development
+.env.production
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# MacOS
+.DS_Store
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
