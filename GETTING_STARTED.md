@@ -1,4 +1,4 @@
-# 🎓 Student Quick Start Guide
+#  Student Quick Start Guide
 
 ## What You Need
 - ✅ Docker & Docker Compose installed
@@ -11,7 +11,7 @@
 
 ---
 
-## 🚀 Get Started in 3 Steps
+##  Get Started in 3 Steps
 
 ### 1. Start Everything
 ```bash
@@ -21,7 +21,7 @@ docker-compose up -d
 
 ### 2. Choose Your Path
 
-**🐳 Easy Mode (Recommended)** - Zero installation issues:
+** Easy Mode (Recommended)** - Zero installation issues:
 ```bash
 ./lab-control.sh spark-shell    # Interactive Spark
 ./lab-control.sh jupyter        # Jupyter Lab at http://localhost:8888
@@ -34,7 +34,7 @@ python check_spark_compatibility.py     # Check compatibility first
 python test_spark_kafka.py             # Test setup
 ```
 
-> **💡 Having Scala/version errors?** Use containerized mode - it's pre-configured and guaranteed to work!
+> ** Having Scala/version errors?** Use containerized mode - it's pre-configured and guaranteed to work!
 
 ### 3. Run Analytics
 ```bash
@@ -48,7 +48,7 @@ python examples/improved_detection_analytics.py
 python examples/security_analytics_template.py
 ```
 
-## 🎯 See Detection in Action
+##  See Detection in Action
 ```bash
 # 1. Start detection analytics
 python examples/improved_detection_analytics.py
@@ -63,13 +63,13 @@ python examples/improved_detection_analytics.py
 
 ---
 
-## 🎯 See It Working
+##  See It Working
 - **Live Events**: `./lab-control.sh logs`
 - **Kafka UI**: http://localhost:8080
 - **Spark UI**: http://localhost:4040 (when running)
 - **Database**: http://localhost:5050 (admin@example.com/admin)
 
-## 🔥 Simulate Attacks
+##  Simulate Attacks
 ```bash
 ./lab-control.sh attack-bf      # Brute force
 ./lab-control.sh attack-ddos    # DDoS attack

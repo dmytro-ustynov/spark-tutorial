@@ -1,18 +1,18 @@
-# 🎯 Detection Task Solution Guide
+# Detection Task Solution Guide
 
 ## Understanding the Attack Simulations
 
-### 🔥 Brute Force Attack Phases:
+### Brute Force Attack Phases:
 1. **Reconnaissance** (1 min): 2 failed logins/second = 120 total
 2. **Medium Intensity** (3 min): 8 failed logins/second = 1,440 total  
 3. **High Intensity** (2 min): 25 failed logins/second = 3,000 total
 
-### 💥 DDoS Attack Phases:
+### DDoS Attack Phases:
 1. **Ramp Up** (1 min): 200 requests/second = 12,000 total
 2. **Sustained** (3 min): 1,500 requests/second = 270,000 total
 3. **Peak** (1 min): 3,000 requests/second = 180,000 total
 
-## 🧪 Step-by-Step Detection Process
+## Step-by-Step Detection Process
 
 ### Step 1: Verify Event Generation
 ```bash
@@ -146,7 +146,7 @@ geo_analysis = events_df \
     .filter(col("count") >= 5)
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Streaming Limitations to Know:
 
@@ -178,7 +178,7 @@ geo_analysis = events_df \
 2. **Lower thresholds**: Earlier detection
 3. **Multiple thresholds**: Severity levels
 
-## 🏆 Success Criteria
+##  Success Criteria
 
 ✅ **Brute Force Detection**: Alerts within 2-3 minutes of attack start
 ✅ **DDoS Detection**: Alerts within 1-2 minutes of attack start  
@@ -186,7 +186,7 @@ geo_analysis = events_df \
 ✅ **Actionable Information**: Alerts include source, target, severity
 ✅ **Real-time Processing**: Streaming updates every 30 seconds
 
-## 📚 Next Steps
+##  Next Steps
 
 1. **Persistence**: Write alerts to PostgreSQL using foreachBatch
 2. **Alerting**: Integration with notification systems

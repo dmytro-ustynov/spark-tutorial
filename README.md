@@ -12,7 +12,7 @@ Students will learn to:
 - Handle late-arriving data and implement watermarking
 - Build scalable threat detection systems
 
-## 📋 Prerequisites & Setup
+## Prerequisites & Setup
 
 ### What You Need:
 - **Docker & Docker Compose** (for running the lab environment)
@@ -34,7 +34,8 @@ Students will learn to:
 
 **TL;DR**: Just Docker is required. Everything else runs in containers! 🐳
 
-## 🏗️ Architecture
+
+##  Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -49,7 +50,7 @@ Students will learn to:
                                               └─────────────────┘
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Start the Lab Environment
 ```bash
@@ -65,7 +66,7 @@ docker-compose up -d
 
 ### 2. Choose Your Spark Approach
 
-**🐳 OPTION A: Containerized Spark (Recommended - No Installation Required)**
+** OPTION A: Containerized Spark (Recommended - No Installation Required)**
 ```bash
 # Everything is pre-installed in containers!
 
@@ -80,7 +81,7 @@ docker-compose up -d
 ./lab-control.sh spark-submit examples/containerized_analytics.py
 ```
 
-**💻 OPTION B: Local Spark Installation**
+** OPTION B: Local Spark Installation**
 ```bash
 # Install Python dependencies  
 pip install -r requirements.txt
@@ -95,138 +96,109 @@ python examples/simple_console_analytics.py
 python examples/security_analytics_template.py
 ```
 
-### 3. Verify Event Generation
+### 3. See Detection in Action
 ```bash
-# Check log generator status
-curl http://localhost:3000/status
+# Start improved detection analytics (recommended for learning)
+python examples/improved_detection_analytics.py
 
-# View generated events in Kafka UI
-open http://localhost:8080
+# In another terminal, trigger attacks
+./lab-control.sh attack-bf      # Brute force (alerts in 2-3 min)
+./lab-control.sh attack-ddos    # DDoS attack (alerts in 1-2 min)
+
+# Stop attacks when done
+./lab-control.sh stop-attacks
 ```
 
-### 3. Setup Spark Environment for Students
+**Need detailed guidance?** See **[DETECTION_GUIDE.md](DETECTION_GUIDE.md)** for step-by-step solutions!
+
+## 🎓 Learning Paths & Examples
+
+### **Beginner Level:**
 ```bash
-# Install Python dependencies
-pip install -r requirements.txt
+# 1. Verify events are flowing
+python verify_events.py
 
-# Test Spark-Kafka integration
-python test_spark_kafka.py
+# 2. Console-only analytics (immediate feedback)
+python examples/simple_console_analytics.py
 
-# If successful, run the analytics template
+# 3. Improved detection with debugging
+python examples/improved_detection_analytics.py
+```
+
+### **Intermediate Level:**
+```bash
+# 1. Full database integration
 python examples/security_analytics_template.py
+
+# 2. Containerized development
+./lab-control.sh jupyter  # Interactive notebooks
+
+# 3. Custom thresholds and windows
+# Edit templates to adjust detection logic
 ```
 
-### 4. Start Attack Simulations
-
-**Option A: Via API**
+### **Advanced Level:**
 ```bash
-# Start brute force attack
-curl -X POST http://localhost:3000/attack/bruteforce
+# 1. Production-style analytics
+python examples/instructor_solution.py
 
-# Start DDoS attack  
-curl -X POST http://localhost:3000/attack/ddos
+# 2. Performance optimization
+# Monitor Spark UI at http://localhost:4040
 
-# Stop specific attack
-curl -X DELETE http://localhost:3000/attack/bruteforce
+# 3. Custom analytics development
+# Create new detection algorithms in student-work/
 ```
 
-**Option B: Via Docker Command**
-```bash
-# Start container with immediate brute force attack
-docker-compose run --rm log-generator node server.js -mode=bruteforce
-
-# Start container with immediate DDoS attack
-docker-compose run --rm log-generator node server.js -mode=ddos
-```
-
-## Generated Event Types
+## Generated Event Types & Attack Simulations
 
 ### Normal Traffic Events
-- **Authentication Attempts**: Legitimate user logins
-- **Network Connections**: Regular HTTP/HTTPS traffic
+- **Authentication Attempts**: Legitimate user logins (95% success rate)
+- **Network Connections**: Regular HTTP/HTTPS traffic 
 - **DNS Queries**: Standard domain lookups
 - **File Access**: Normal file operations
 
 ### Attack Simulation Events
 
-#### Brute Force Attack
-```json
-{
-  "timestamp": "2025-06-11T10:31:12.456Z",
-  "event_type": "auth_attempt",
-  "source_ip": "203.0.113.15",
-  "destination_ip": "10.0.0.100",
-  "username": "admin",
-  "result": "failed",
-  "protocol": "SSH",
-  "failure_reason": "invalid_password",
-  "attempt_count": 45,
-  "geo_location": {"country": "CN", "city": "Beijing"},
-  "severity": "high"
-}
+#### 🔥 Brute Force Attack Phases:
+1. **Reconnaissance** (1 min): 2 failed logins/second = 120 total
+2. **Medium Intensity** (3 min): 8 failed logins/second = 1,440 total  
+3. **High Intensity** (2 min): 25 failed logins/second = 3,000 total
+
+#### 💥 DDoS Attack Phases:
+1. **Ramp Up** (1 min): 200 requests/second = 12,000 total
+2. **Sustained** (3 min): 1,500 requests/second = 270,000 total
+3. **Peak** (1 min): 3,000 requests/second = 180,000 total
+
+### **Attack Controls:**
+```bash
+# Easy attack simulation controls
+./lab-control.sh attack-bf      # Start brute force simulation
+./lab-control.sh attack-ddos    # Start DDoS simulation
+./lab-control.sh stop-attacks   # Stop all attacks
+
+# Monitor real-time event generation
+./lab-control.sh logs           # See live attack patterns
 ```
 
-#### DDoS Attack
-```json
-{
-  "timestamp": "2025-06-11T10:32:01.234Z",
-  "event_type": "network_connection",
-  "source_ip": "198.51.100.42",
-  "destination_ip": "10.0.0.200",
-  "protocol": "HTTP",
-  "port": 80,
-  "requests_per_second": 1500,
-  "response_code": 503,
-  "severity": "critical"
-}
-```
+## Student Tasks & Objectives
 
-##  Student Tasks
-
-### Task 1: Basic Brute Force Detection
+### **Task 1: Basic Brute Force Detection**
 **Objective**: Detect brute force attacks by counting failed login attempts
 
-```python
-# Expected detection logic
-failed_logins = df.filter(col("event_type") == "auth_attempt") \
-  .filter(col("result") == "failed") \
-  .groupBy(
-    window(col("timestamp"), "5 minutes"),
-    col("source_ip")
-  ) \
-  .count() \
-  .filter(col("count") > 10)
-```
-
 **Success Criteria**: 
-- Detect IPs with >10 failed attempts in 5-minute windows
+- Detect IPs with ≥5 failed attempts in 2-minute windows
 - Store alerts in `brute_force_alerts` table
 - Handle late-arriving events with watermarking
 
-### Task 2: DDoS Traffic Analysis
+### **Task 2: DDoS Traffic Analysis**
 **Objective**: Identify DDoS attacks through traffic volume analysis
 
-```python
-# Expected detection logic
-ddos_detection = df.filter(col("event_type") == "network_connection") \
-  .groupBy(
-    window(col("timestamp"), "1 minute"),
-    col("destination_ip"),
-    col("port")
-  ) \
-  .agg(
-    count("*").alias("request_count"),
-    countDistinct("source_ip").alias("unique_sources")
-  ) \
-  .filter(col("request_count") > 1000)
-```
-
 **Success Criteria**:
-- Detect >1000 requests/minute to single target
-- Track unique source IPs in attacks
+- Detect ≥100 requests/minute to single target
+- Track approximate unique source IPs in attacks
 - Store results in `ddos_alerts` table
 
-### Task 3: Geographic Anomaly Detection
+### **Task 3: Geographic Anomaly Detection**
 **Objective**: Detect impossible travel scenarios
 
 **Success Criteria**:
@@ -234,7 +206,7 @@ ddos_detection = df.filter(col("event_type") == "network_connection") \
 - Calculate geographic distances and time differences
 - Store anomalies in `geographic_anomalies` table
 
-### Task 4: Advanced Threat Scoring
+### **Task 4: Advanced Threat Scoring**
 **Objective**: Build composite threat scores
 
 **Success Criteria**:
@@ -242,6 +214,8 @@ ddos_detection = df.filter(col("event_type") == "network_connection") \
 - Weight different attack indicators
 - Maintain running threat scores per IP/user
 - Store in `threat_scores` table
+
+**Detailed task solutions:** See **[DETECTION_GUIDE.md](DETECTION_GUIDE.md)**
 
 ## Database Schema
 
@@ -253,55 +227,117 @@ The PostgreSQL database includes these pre-created tables:
 - `security_metrics` - General security metrics
 - `threat_scores` - Composite threat assessments
 
-## Development Tools
+**View schema details:** Check `init-db.sql` for complete table definitions and sample data.
 
-### Kafka UI (http://localhost:8080)
-- View real-time event streams
-- Monitor topic partitions and consumer lag
-- Inspect message contents
+## Development Tools & Interfaces
 
-### pgAdmin (http://localhost:5050)
-- **Email**: admin@example.com
-- **Password**: admin
-- Query analytical results
-- Monitor table performance
+### **Web Interfaces:**
+- **Kafka UI**: http://localhost:8080 - Monitor real-time event streams
+- **Spark UI**: http://localhost:4040 - Monitor streaming jobs (when running)
+- **Jupyter Lab**: http://localhost:8888 - Interactive development
+- **pgAdmin**: http://localhost:5050 - Database management (admin@example.com/admin)
+- **Log Generator**: http://localhost:3000/status - Control attack simulations
 
-## Useful Commands
-
+### **Command Line Tools:**
 ```bash
-# View real-time logs (see event streaming in action!)
-docker-compose logs -f log-generator
+# Lab control (all-in-one management)
+./lab-control.sh help           # Show all commands
+./lab-control.sh status         # Check service health
+./lab-control.sh logs           # View real-time event generation
 
-# View recent activity summary
-./lab-control.sh logs-recent
+# Spark development
+./lab-control.sh spark-shell    # Interactive Spark
+./lab-control.sh jupyter        # Jupyter Lab
+./lab-control.sh spark-submit   # Submit applications
 
-# Connect to PostgreSQL
-docker-compose exec postgres psql -U spark_user -d security_analytics
-
-# Generate test events manually
-curl -X POST http://localhost:3000/generate/100
-
-# Check Kafka topics
-docker-compose exec kafka kafka-topics --bootstrap-server localhost:9092 --list
-
-# Monitor event consumption
-docker-compose exec kafka kafka-console-consumer \
-  --bootstrap-server localhost:9092 \
-  --topic security-events \
-  --from-beginning
+# Monitoring & debugging
+./lab-control.sh kafka-ui       # Open Kafka monitoring
+./lab-control.sh pgadmin        # Open database admin
+./lab-control.sh logs-recent    # Recent activity summary
 ```
 
-## Attack Simulation Phases
+## Useful Commands & Examples
 
-### Brute Force Attack Phases
-1. **Reconnaissance** (1 min): 2 attempts/second - slow probing
-2. **Medium Intensity** (3 min): 8 attempts/second - active attack
-3. **High Intensity** (2 min): 25 attempts/second - aggressive attack
+### **Real-time Monitoring:**
+```bash
+# View live event streaming
+./lab-control.sh logs
 
-### DDoS Attack Phases  
-1. **Ramp Up** (1 min): 200 requests/second - building botnet
-2. **Sustained** (3 min): 1500 requests/second - main attack
-3. **Peak** (1 min): 3000 requests/second - maximum intensity
+# Check detection results in database
+docker-compose exec postgres psql -U spark_user -d security_analytics -c "SELECT * FROM brute_force_alerts ORDER BY window_start DESC LIMIT 5;"
+
+# Monitor Kafka topics
+docker-compose exec kafka kafka-topics --bootstrap-server localhost:9092 --list
+
+# Generate manual test events
+curl -X POST http://localhost:3000/generate/100
+```
+
+### **Development Workflow:**
+```bash
+# 1. Start environment
+docker-compose up -d
+
+# 2. Verify setup
+./lab-control.sh status
+python verify_events.py
+
+# 3. Develop analytics
+./lab-control.sh jupyter  # Interactive development
+# OR
+python examples/improved_detection_analytics.py  # Console development
+
+# 4. Test with attacks
+./lab-control.sh attack-bf    # Trigger brute force
+./lab-control.sh attack-ddos  # Trigger DDoS
+
+# 5. Monitor results
+# - Watch console output
+# - Check Spark UI (http://localhost:4040)
+# - Query database via pgAdmin
+```
+
+## 🛠️ Troubleshooting
+
+### **Quick Fixes:**
+
+**"Distinct aggregations are not supported on streaming DataFrames" Error**:
+```bash
+# Streaming doesn't support exact distinct counts
+# Solution: Use approx_count_distinct() instead
+# Our templates have been updated to use the correct approach
+```
+
+**"Data source jdbc does not support streamed writing" Error**:
+```bash
+# JDBC doesn't support direct streaming writes
+# Solution: Use foreachBatch() pattern (included in our templates)
+python examples/security_analytics_template.py
+```
+
+**Scala Version Compatibility Error**:
+```bash
+# Version mismatch between PySpark and Kafka connector
+# Solution 1: Use containerized Spark (recommended)
+./lab-control.sh spark-shell
+
+# Solution 2: Check compatibility
+python check_spark_compatibility.py
+```
+
+**No Events Appearing**:
+```bash
+# Check log generator health
+curl http://localhost:3000/health
+./lab-control.sh logs-recent
+
+# Restart services if needed
+docker-compose restart
+```
+
+### **Detailed Troubleshooting:**
+- **Detection Problems**: See **[DETECTION_GUIDE.md](DETECTION_GUIDE.md)**  
+- **Setup Issues**: See **[GETTING_STARTED.md](GETTING_STARTED.md)**
 
 ## Assessment Criteria
 
@@ -311,93 +347,80 @@ Students are evaluated on:
 2. **Performance**: Efficient Spark operations and SQL queries
 3. **Completeness**: Handle edge cases and late data
 4. **Code Quality**: Clean, readable Spark applications
-5. **Documentation**: Clear explanation of detection logic
+5. **Understanding**: Explain detection logic and streaming concepts
+6. **Problem Solving**: Debug and fix compatibility issues
 
-##  Troubleshooting
+### **Success Metrics:**
+- ✅ **Brute Force Detection**: Alerts within 2-3 minutes of attack start
+- ✅ **DDoS Detection**: Alerts within 1-2 minutes of attack start  
+- ✅ **Low False Positives**: <10% false positive rate
+- ✅ **Actionable Information**: Alerts include source, target, severity
+- ✅ **Real-time Processing**: Streaming updates every 30 seconds
 
-### Common Issues
+## 📖 Additional Resources & Learning
 
-**"Failed to find data source: kafka" Error**:
-```bash
-# The error means Spark needs Kafka connector JARs
-# Solution 1: Use our test script
-python test_spark_kafka.py
-
-# Solution 2: Set environment variable before running
-export PYSPARK_SUBMIT_ARGS="--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.7.1 pyspark-shell"
-python examples/security_analytics_template.py
-
-# Solution 3: Use our configuration helper
-python examples/spark_kafka_config.py
-```
-
-**Scala Version Compatibility Error** (`NoSuchMethodError: scala.collection.mutable.WrappedArray`):
-```bash
-# This indicates version mismatch between PySpark and Kafka connector
-# Solution 1: Check and fix compatibility
-python check_spark_compatibility.py
-
-# Solution 2: Use containerized Spark (recommended)
-./lab-control.sh spark-shell
-
-# Solution 3: Reinstall with exact version
-pip uninstall pyspark
-pip install pyspark==3.5.0
-```
-
-**"Distinct aggregations are not supported on streaming DataFrames" Error**:
-```bash
-# Streaming doesn't support exact distinct counts
-# Solution: Use approx_count_distinct() instead
-
-# Wrong (causes error):
-countDistinct("source_ip")
-
-# Correct (streaming compatible):
-approx_count_distinct("source_ip")
-
-# Our templates have been updated to use the correct approach
-```
-
-**"Data source jdbc does not support streamed writing" Error**:
-```bash
-# This is expected - JDBC doesn't support direct streaming writes
-# Our templates use foreachBatch() to handle this correctly
-# If you see this error, you're using the old direct JDBC approach
-
-# Solution: Use the updated templates with foreachBatch
-python examples/security_analytics_template.py
-python examples/containerized_analytics.py
-
-# Test PostgreSQL connection separately
-python test_postgres_connection.py
-```
-
-**Kafka Connection Issues**:
-```bash
-# Restart Kafka services
-docker-compose restart zookeeper kafka
-```
-
-**No Events Generated**:
-```bash
-# Check log generator health
-curl http://localhost:3000/health
-docker-compose logs log-generator
-```
-
-**Database Connection Problems**:
-```bash
-# Verify PostgreSQL is running
-docker-compose exec postgres pg_isready
-```
-
-## Additional Resources
-
+### **Spark Streaming Concepts:**
 - [Apache Spark Structured Streaming Guide](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html)
-- [Kafka Python Client Documentation](https://kafka-python.readthedocs.io/)
-- [Cybersecurity Analytics Patterns](https://github.com/topics/cybersecurity-analytics)
+- [Kafka Integration Guide](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html)
+- [Watermarking and Late Data](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#handling-late-data-and-watermarking)
+
+### **Cybersecurity Analytics:**
+- [SIEM Analytics Patterns](https://github.com/topics/cybersecurity-analytics)
+- [Real-time Threat Detection](https://www.elastic.co/what-is/siem)
+- [Network Security Monitoring](https://zeek.org/)
+
+### **Big Data & Streaming:**
+- [Kafka Documentation](https://kafka.apache.org/documentation/)
+- [PostgreSQL Streaming](https://www.postgresql.org/docs/current/logical-replication.html)
+- [Stream Processing Patterns](https://www.confluent.io/blog/data-dichotomy-batch-versus-stream-processing/)
+
+## Contributing & Support
+
+### **For Instructors:**
+- **Complete Solutions**: See `examples/instructor_solution.py`
+- **Assessment Rubrics**: Defined in assessment criteria section
+- **Custom Scenarios**: Modify `log-generator.js` attack patterns
+- **Scaling**: Docker Compose supports multi-node deployment
+
+### **For Students:**
+- **Start Here**: Use **[GETTING_STARTED.md](GETTING_STARTED.md)**
+- **Get Unstuck**: Check troubleshooting sections in relevant guides
+- **Advanced Learning**: Explore instructor solutions after completing tasks
+- **Real-world Application**: Consider internships in cybersecurity/data engineering
+
+### **Repository Structure:**
+```
+spark-tutorial/
+├── README.md                    # This comprehensive guide
+├── GETTING_STARTED.md          # Quick start for students  
+├── DETECTION_GUIDE.md          # Task solutions & explanations
+├── docker-compose.yml          # Complete environment setup
+├── examples/                   # All code templates & solutions
+│   ├── simple_console_analytics.py
+│   ├── improved_detection_analytics.py
+│   ├── security_analytics_template.py
+│   ├── containerized_analytics.py
+│   └── instructor_solution.py
+├── student-work/               # Student workspace
+├── lab-control.sh             # Environment management script
+└── init-db.sql               # Database schema & sample data
+```
 
 ---
+
+## Ready to Start!
+
+### **Simple 5-Step Process:**
+
+1. **🐳 Start**: `docker-compose up -d`
+2. **✅ Verify**: `./lab-control.sh status`  
+3. **📚 Learn**: Read **[GETTING_STARTED.md](GETTING_STARTED.md)**
+4. **🚀 Detect**: `python examples/improved_detection_analytics.py`
+5. **🔥 Attack**: `./lab-control.sh attack-bf` and watch the alerts!
+
+### **Next Steps:**
+- **Master Detection**: Follow **[DETECTION_GUIDE.md](DETECTION_GUIDE.md)** 
+- **Build Custom Analytics**: Develop in `student-work/` directory
+- **Scale Up**: Explore production deployment patterns
 
 **Happy Learning!**
