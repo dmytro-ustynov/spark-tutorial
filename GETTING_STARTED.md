@@ -38,11 +38,8 @@ python test_spark_kafka.py             # Test setup
 
 ### 3. Run Analytics
 ```bash
-# Container: 
-./lab-control.sh spark-submit examples/containerized_analytics.py
-
 # Local - Simple console output (recommended for learning):
-python examples/improved_detection_analytics.py
+python examples/detection_analytics.py
 
 # Local - Full database integration:
 python examples/security_analytics_template.py
@@ -51,7 +48,7 @@ python examples/security_analytics_template.py
 ##  See Detection in Action
 ```bash
 # 1. Start detection analytics
-python examples/improved_detection_analytics.py
+python examples/detection_analytics.py
 
 # 2. In another terminal, trigger attacks
 ./lab-control.sh attack-bf      # Brute force (watch for alerts in 2-3 min)
