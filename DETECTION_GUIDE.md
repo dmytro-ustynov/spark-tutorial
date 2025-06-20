@@ -62,9 +62,8 @@ curl -X POST http://localhost:3000/generate/100
 # 📊 [2:15:30 PM] Sent 50 events | Current: 5.2/sec | Type: network_connection | Severity: info
 ```
 
-### Step 2: Run Improved Detection Script
+### Step 2: Run Detection Script
 ```bash
-# Use the improved version with debugging
 python examples/detection_analytics.py
 ```
 

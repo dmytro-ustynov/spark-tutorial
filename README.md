@@ -77,8 +77,6 @@ docker-compose up -d
 ./lab-control.sh jupyter
 # Then open: http://localhost:8888
 
-# Run example analytics
-./lab-control.sh spark-submit examples/containerized_analytics.py
 ```
 
 ** OPTION B: Local Spark Installation**
@@ -99,7 +97,7 @@ python examples/security_analytics_template.py
 ### 3. See Detection in Action
 ```bash
 # Start improved detection analytics (recommended for learning)
-python examples/improved_detection_analytics.py
+python examples/detection_analytics.py
 
 # In another terminal, trigger attacks
 ./lab-control.sh attack-bf      # Brute force (alerts in 2-3 min)
@@ -122,7 +120,7 @@ python verify_events.py
 python examples/simple_console_analytics.py
 
 # 3. Improved detection with debugging
-python examples/improved_detection_analytics.py
+python examples/detection_analytics.py
 ```
 
 ### **Intermediate Level:**
@@ -135,18 +133,6 @@ python examples/security_analytics_template.py
 
 # 3. Custom thresholds and windows
 # Edit templates to adjust detection logic
-```
-
-### **Advanced Level:**
-```bash
-# 1. Production-style analytics
-python examples/instructor_solution.py
-
-# 2. Performance optimization
-# Monitor Spark UI at http://localhost:4040
-
-# 3. Custom analytics development
-# Create new detection algorithms in student-work/
 ```
 
 ## Generated Event Types & Attack Simulations
