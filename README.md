@@ -58,7 +58,7 @@ Students will learn to:
 cd spark-tutorial
 
 # Start all services (Kafka, PostgreSQL, Log Generator, Spark)
-docker-compose up -d
+docker compose up -d
 
 # Check that all services are running
 ./lab-control.sh status
@@ -81,7 +81,12 @@ docker-compose up -d
 
 ** OPTION B: Local Spark Installation**
 ```bash
-# Install Python dependencies  
+# Create and activate an isolated virtual environment (recommended)
+python3 -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+
+# Install Python dependencies
+pip install --upgrade pip
 pip install -r requirements.txt
 
 # Test Spark-Kafka integration (auto-downloads JARs)
@@ -250,10 +255,10 @@ The PostgreSQL database includes these pre-created tables:
 ./lab-control.sh logs
 
 # Check detection results in database
-docker-compose exec postgres psql -U spark_user -d security_analytics -c "SELECT * FROM brute_force_alerts ORDER BY window_start DESC LIMIT 5;"
+docker compose exec postgres psql -U spark_user -d security_analytics -c "SELECT * FROM brute_force_alerts ORDER BY window_start DESC LIMIT 5;"
 
 # Monitor Kafka topics
-docker-compose exec kafka kafka-topics --bootstrap-server localhost:9092 --list
+docker compose exec kafka kafka-topics --bootstrap-server localhost:9092 --list
 
 # Generate manual test events
 curl -X POST http://localhost:3000/generate/100
@@ -262,7 +267,7 @@ curl -X POST http://localhost:3000/generate/100
 ### **Development Workflow:**
 ```bash
 # 1. Start environment
-docker-compose up -d
+docker compose up -d
 
 # 2. Verify setup
 ./lab-control.sh status
@@ -271,7 +276,7 @@ python verify_events.py
 # 3. Develop analytics
 ./lab-control.sh jupyter  # Interactive development
 # OR
-python examples/improved_detection_analytics.py  # Console development
+python examples/detection_analytics.py  # Console development
 
 # 4. Test with attacks
 ./lab-control.sh attack-bf    # Trigger brute force
@@ -318,7 +323,7 @@ curl http://localhost:3000/health
 ./lab-control.sh logs-recent
 
 # Restart services if needed
-docker-compose restart
+docker compose restart
 ```
 
 ### **Detailed Troubleshooting:**
@@ -383,7 +388,7 @@ spark-tutorial/
 ├── docker-compose.yml          # Complete environment setup
 ├── examples/                   # All code templates & solutions
 │   ├── simple_console_analytics.py
-│   ├── improved_detection_analytics.py
+│   ├── detection_analytics.py
 │   ├── security_analytics_template.py
 │   ├── containerized_analytics.py
 │   └── instructor_solution.py
@@ -398,10 +403,10 @@ spark-tutorial/
 
 ### **Simple 5-Step Process:**
 
-1. **🐳 Start**: `docker-compose up -d`
+1. **🐳 Start**: `docker compose up -d`
 2. **✅ Verify**: `./lab-control.sh status`  
 3. **📚 Learn**: Read **[GETTING_STARTED.md](GETTING_STARTED.md)**
-4. **🚀 Detect**: `python examples/improved_detection_analytics.py`
+4. **🚀 Detect**: `python examples/detection_analytics.py`
 5. **🔥 Attack**: `./lab-control.sh attack-bf` and watch the alerts!
 
 ### **Next Steps:**

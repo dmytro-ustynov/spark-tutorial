@@ -159,7 +159,7 @@ ddos_alerts = events_df \
 
 ```bash
 # Check if alerts are being written to database
-docker-compose exec -T postgres psql -U spark_user -d security_analytics -c "
+docker compose exec -T postgres psql -U spark_user -d security_analytics -c "
 SELECT 
     window_start,
     source_ip,

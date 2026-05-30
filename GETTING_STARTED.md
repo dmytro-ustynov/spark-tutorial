@@ -15,7 +15,7 @@
 
 ### 1. Start Everything
 ```bash
-docker-compose up -d
+docker compose up -d
 ./lab-control.sh status
 ```
 
@@ -29,10 +29,22 @@ docker-compose up -d
 
 **💻 Local Mode** - May have version conflicts:
 ```bash
+# 1. Create and activate an isolated virtual environment
+python3 -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+
+# 2. Upgrade pip and install dependencies
+pip install --upgrade pip
 pip install -r requirements.txt
+
+# 3. Verify the setup
 python check_spark_compatibility.py     # Check compatibility first
 python test_spark_kafka.py             # Test setup
 ```
+
+> **Note:** Always use a virtual environment for Local Mode. `requirements.txt`
+> already pins `setuptools` and a compatible `numpy` (1.26.4) so the install
+> works on Python 3.12. When you're done, run `deactivate` to leave the venv.
 
 > ** Having Scala/version errors?** Use containerized mode - it's pre-configured and guaranteed to work!
 

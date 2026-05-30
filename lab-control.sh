@@ -33,6 +33,7 @@ show_help() {
     echo -e "  ${BLUE}spark-shell${NC}     Open interactive Spark shell"
     echo -e "  ${BLUE}jupyter${NC}         Start Jupyter Lab for analytics"
     echo -e "  ${BLUE}spark-submit${NC}    Submit Spark application"
+    echo -e "  ${BLUE}spark-ui${NC}        Open Spark UI in browser"
     echo -e "  ${BLUE}kafka-ui${NC}        Open Kafka UI in browser"
     echo -e "  ${BLUE}pgadmin${NC}         Open pgAdmin in browser"
     echo -e "  ${BLUE}generate${NC}        Generate test events"
@@ -41,30 +42,30 @@ show_help() {
 
 start_services() {
     echo -e "${GREEN}🚀 Starting Cybersecurity Analytics Lab...${NC}"
-    docker-compose up -d
+    docker compose up -d
     echo ""
     echo -e "${GREEN}✅ Services started! Waiting for initialization...${NC}"
     sleep 10
     
     echo "📊 Service Status:"
-    docker-compose ps
+    docker compose ps
 }
 
 stop_services() {
     echo -e "${YELLOW}🛑 Stopping all services...${NC}"
-    docker-compose down
+    docker compose down
     echo -e "${GREEN}✅ Services stopped${NC}"
 }
 
 restart_services() {
     echo -e "${YELLOW}🔄 Restarting services...${NC}"
-    docker-compose restart
+    docker compose restart
     echo -e "${GREEN}✅ Services restarted${NC}"
 }
 
 show_status() {
     echo -e "${BLUE}📊 Service Status:${NC}"
-    docker-compose ps
+    docker compose ps
     echo ""
     
     echo -e "${BLUE}🌐 Web Interfaces:${NC}"
@@ -109,7 +110,7 @@ show_logs() {
     echo -e "${BLUE}📝 Log Generator Logs (Press Ctrl+C to exit):${NC}"
     echo -e "${YELLOW}💡 TIP: Watch for real-time event streaming and attack simulations!${NC}"
     echo ""
-    docker-compose logs -f log-generator
+    docker compose logs -f log-generator
 }
 
 clean_all() {
@@ -117,7 +118,7 @@ clean_all() {
     echo -e "${YELLOW}⚠️  This will delete all data. Continue? (y/N)${NC}"
     read -r response
     if [[ "$response" =~ ^[Yy]$ ]]; then
-        docker-compose down -v --remove-orphans
+        docker compose down -v --remove-orphans
         docker system prune -f
         echo -e "${GREEN}✅ Cleanup complete${NC}"
     else
@@ -170,13 +171,13 @@ open_spark_ui() {
 start_jupyter() {
     echo -e "${BLUE}📊 Starting Jupyter Lab for analytics...${NC}"
     echo "Access at: http://localhost:8888"
-    docker-compose exec spark-analytics jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --notebook-dir=/workspace
+    docker compose exec spark-analytics jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --notebook-dir=/workspace
 }
 
 start_spark_shell() {
     echo -e "${BLUE}🔥 Starting interactive Spark shell...${NC}"
     echo "💡 Kafka and PostgreSQL packages are pre-loaded"
-    docker-compose exec spark-analytics pyspark
+    docker compose exec spark-analytics pyspark
 }
 
 submit_spark_app() {
@@ -189,7 +190,7 @@ submit_spark_app() {
         return 1
     fi
     
-    docker-compose exec spark-analytics spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.7.1 "$app_path"
+    docker compose exec spark-analytics spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.7.1 "$app_path"
 }
 
 open_kafka_ui() {
@@ -252,7 +253,7 @@ case "${1:-help}" in
         ;;
     "logs-recent")
         echo -e "${BLUE}📝 Recent Log Generator Activity:${NC}"
-        docker-compose logs --tail=30 log-generator
+        docker compose logs --tail=30 log-generator
         ;;
     "clean")
         clean_all
