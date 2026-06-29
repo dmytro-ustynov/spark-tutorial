@@ -127,7 +127,7 @@ ddos_alerts = events_df \
         count("*").alias("request_count"),
         approx_count_distinct("source_ip").alias("unique_sources")  # Approximate count for streaming
     ) \
-    .filter(col("count") >= 100)  # Adjust this threshold
+    .filter(col("request_count") >= 100)  # Adjust this threshold
 ```
 
 ## 🎯 Attack Pattern Recognition

@@ -143,7 +143,7 @@ class SecurityAnalytics:
                 col("window.end").alias("window_end"),
                 col("destination_ip").alias("target_ip"),
                 col("port").alias("target_port"),
-                col("avg_rps").cast("integer").alias("requests_per_second"),
+                coalesce(col("avg_rps"), lit(0)).cast("integer").alias("requests_per_second"),
                 col("unique_source_ips"),
                 col("total_requests"),
                 lit("critical").alias("severity"),

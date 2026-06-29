@@ -163,8 +163,8 @@ class SecurityAnalyticsSolution:
                 avg("response_code").alias("avg_response_code")
             ) \
             .filter(
-                (col("protocol") == "UDP" & col("request_count") > 500) |
-                (col("protocol") == "HTTP" & col("avg_response_code") > 400)
+                ((col("protocol") == "UDP") & (col("request_count") > 500)) |
+                ((col("protocol") == "HTTP") & (col("avg_response_code") > 400))
             )
         
         # Combine detections
@@ -222,8 +222,8 @@ class SecurityAnalyticsSolution:
                  unix_timestamp(col("session_start"))) / 60
             ) \
             .withColumn("risk_score",
-                when(col("time_diff_minutes") < 30 & col("country_count") > 2, 9.5)
-                .when(col("time_diff_minutes") < 60 & col("country_count") > 1, 7.5)
+                when((col("time_diff_minutes") < 30) & (col("country_count") > 2), 9.5)
+                .when((col("time_diff_minutes") < 60) & (col("country_count") > 1), 7.5)
                 .when(col("country_count") > 3, 8.0)
                 .otherwise(5.0)
             ) \
@@ -380,7 +380,7 @@ class SecurityAnalyticsSolution:
                 lit("events_by_type").alias("metric_type"),
                 col("event_type").alias("metric_key"),
                 col("count").alias("metric_value"),
-                lit(null).cast("string").alias("additional_data")
+                lit(None).cast("string").alias("additional_data")
             )
         
         metrics_query = self.write_to_postgres_enhanced(
